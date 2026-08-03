@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La Fábrica de Restas · Aprende a restar llevando</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFF0CE;
+  --ink:#2C1F45;
+  --line:#2C1F45;
+  --ok:#28DB3C;
+  --no:#FF2222;
+  --star:#FFC800;
+  --theme:#7B2FF7;
+  --theme-dark:#4A128C;
+  --on-theme:#fff;
+  --cent:#0085FF;
+  --dec:#FF1E8E;
+  --uni:#00C9A7;
+  --r:22px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:"Nunito",system-ui,sans-serif;color:var(--ink);background:var(--paper);overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+.bg::before,.bg::after{content:"";position:absolute;border-radius:50%;filter:blur(10px);opacity:.42;background:var(--theme);transition:background .45s}
+.bg::before{width:72vw;height:72vw;left:-26vw;top:-26vw}
+.bg::after{width:62vw;height:62vw;right:-24vw;bottom:-22vw}
+.app{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:14px 16px 40px}
+
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.brand{font-family:"Fredoka",sans-serif;font-weight:700;font-size:clamp(1.05rem,4.4vw,1.4rem);display:flex;align-items:center;gap:8px;line-height:1}
+.brand-dot{width:16px;height:16px;border-radius:50%;background:var(--theme);border:3px solid var(--line)}
+.spacer{flex:1}
+.pill{display:inline-flex;align-items:center;gap:6px;background:#fff;border:3px solid var(--line);border-radius:999px;padding:5px 12px;font-weight:800;font-size:.9rem;box-shadow:0 3px 0 var(--line)}
+.icon-btn{width:42px;height:42px;border-radius:14px;background:#fff;border:3px solid var(--line);box-shadow:0 3px 0 var(--line);display:grid;place-items:center;cursor:pointer;padding:0}
+.icon-btn:active{transform:translateY(3px);box-shadow:0 0 0 var(--line)}
+.icon-btn.is-off{background:#E7E1F0;opacity:.75}
+.icon-btn svg{width:20px;height:20px}
+
+.screen{display:none;animation:pop .3s cubic-bezier(.2,1.3,.5,1)}
+.screen.is-active{display:block}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+.headline{font-family:"Fredoka",sans-serif;font-weight:700;font-size:clamp(1.5rem,6.4vw,2.3rem);line-height:1.05;letter-spacing:-.02em}
+.sub{color:#6B5C86;font-weight:700;margin-top:6px}
+
+.btn{font:inherit;font-family:"Fredoka",sans-serif;font-weight:600;font-size:1.1rem;color:var(--on-theme);background:var(--theme);border:3.5px solid var(--line);border-radius:18px;padding:13px 20px;cursor:pointer;box-shadow:0 5px 0 var(--line);display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:translateY(5px);box-shadow:0 0 0 var(--line)}
+.btn-ghost{background:#fff;color:var(--ink)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+.back{background:#fff;border:3px solid var(--line);border-radius:14px;padding:7px 14px;font-weight:800;font-size:.9rem;cursor:pointer;box-shadow:0 3px 0 var(--line);font-family:inherit;color:inherit;margin-bottom:12px}
+.back:active{transform:translateY(3px);box-shadow:0 0 0 var(--line)}
+
+/* misiones */
+.missions{display:grid;gap:12px}
+@media(min-width:640px){.missions{grid-template-columns:repeat(3,1fr)}}
+.mcard{background:#fff;border:3.5px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:0 5px 0 var(--line);cursor:pointer;text-align:left;font:inherit;color:inherit;position:relative;overflow:hidden}
+.mcard::before{content:"";position:absolute;inset:auto -20% -55% -20%;height:70%;border-radius:50%;background:var(--c);opacity:.35}
+.mcard:active{transform:translateY(5px);box-shadow:0 0 0 var(--line)}
+.mcard-t{font-family:"Fredoka",sans-serif;font-weight:700;font-size:1.2rem;position:relative}
+.mcard-l{font-weight:800;color:#6B5C86;font-size:.9rem;line-height:1.6;position:relative}
+.stars{display:flex;gap:3px;margin-top:8px;position:relative}
+.stars svg{width:18px;height:18px}
+.free{margin-top:12px;width:100%}
+
+/* pizarra de la resta */
+.board{background:#fff;border:4px solid var(--line);border-radius:24px;box-shadow:0 6px 0 var(--line);padding:14px 26px 18px;display:grid;justify-items:center}
+.heads{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:min(280px,72vw);margin-bottom:6px}
+.head{font-family:"Fredoka",sans-serif;font-weight:700;font-size:.8rem;text-align:center;color:#fff;border:3px solid var(--line);border-radius:10px;padding:2px 0}
+.h-c{background:var(--cent)}.h-d{background:var(--dec)}.h-u{background:var(--uni)}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:min(280px,72vw)}
+.cell{position:relative;height:64px;display:grid;place-items:center;font-family:"Fredoka",sans-serif;font-weight:700;font-size:clamp(2rem,10vw,2.7rem);border-radius:14px}
+.cell.act{background:#FFF2C2;box-shadow:inset 0 0 0 4px var(--star)}
+.cell .struck{position:relative;opacity:.45}
+.cell .struck::after{content:"";position:absolute;left:-6%;right:-6%;top:52%;height:5px;background:var(--no);border-radius:3px;transform:rotate(-14deg)}
+.lend-mark{position:absolute;top:-2px;right:6px;font-size:1.1rem;color:var(--no);animation:drop .35s cubic-bezier(.2,1.5,.5,1)}
+.recv-mark{position:absolute;top:2px;left:4px;font-size:1.2rem;color:var(--ok);animation:drop .35s .12s cubic-bezier(.2,1.5,.5,1) backwards}
+@keyframes drop{from{transform:translateY(-18px) scale(.4);opacity:0}to{transform:none;opacity:1}}
+.rule{height:6px;background:var(--line);border-radius:4px;width:min(280px,72vw);margin:6px 0 4px}
+.minus{position:absolute;left:-30px;top:50%;transform:translateY(-50%);font-size:1.8rem;font-family:"Fredoka",sans-serif}
+.rowb{position:relative}
+.slot{border:4px dashed rgba(44,31,69,.3);border-radius:14px;width:100%;height:100%;display:grid;place-items:center}
+.slot.filled{border-style:solid;border-color:var(--line);background:var(--ok);color:#fff;animation:bump .3s}
+@keyframes bump{45%{transform:scale(1.14)}}
+.tot{font-family:"Fredoka",sans-serif;font-weight:700;font-size:1.4rem;margin-top:10px;min-height:30px;text-align:center}
+
+/* burbuja del profe */
+.coach{display:flex;align-items:flex-end;gap:10px;margin:16px 0 10px}
+.coach .msvg{width:74px;flex:none}
+.bubble{background:#fff;border:3.5px solid var(--line);border-radius:18px;border-bottom-left-radius:4px;padding:10px 14px;font-weight:800;box-shadow:0 4px 0 var(--line);flex:1;min-height:52px;display:flex;align-items:center;font-size:1.02rem}
+.bubble b{color:var(--theme-dark)}
+
+/* botonera */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice{font-family:"Fredoka",sans-serif;font-weight:600;font-size:1.02rem;background:#fff;border:3.5px solid var(--line);border-radius:18px;padding:14px 8px;cursor:pointer;box-shadow:0 5px 0 var(--line);color:inherit;line-height:1.2}
+.choice:active{transform:translateY(5px);box-shadow:0 0 0 var(--line)}
+.pad{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.key{font-family:"Fredoka",sans-serif;font-weight:700;font-size:clamp(1.3rem,6vw,1.7rem);background:#fff;border:3.5px solid var(--line);border-radius:16px;padding:12px 0;cursor:pointer;box-shadow:0 5px 0 var(--line);color:inherit}
+.key:active{transform:translateY(5px);box-shadow:0 0 0 var(--line)}
+.key.ok{background:var(--ok);color:#fff}
+.key.no{background:var(--no);color:#fff;animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.pulse{animation:pulse 1.1s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 5px 0 var(--line)}50%{box-shadow:0 5px 0 var(--line),0 0 0 7px rgba(255,200,0,.55)}}
+
+/* bloques base diez */
+.bank{display:flex;gap:4px;justify-content:center;margin-top:8px;min-height:26px;flex-wrap:wrap}
+.cube{width:16px;height:22px;background:var(--uni);border:3px solid var(--line);border-radius:4px;animation:drop .3s backwards}
+.rod{width:16px;height:22px;background:var(--dec);border:3px solid var(--line);border-radius:4px;position:relative}
+
+.pips{display:flex;gap:4px;flex:1}
+.pip{height:9px;flex:1;border-radius:99px;background:#fff;border:2.5px solid var(--line)}
+.pip.done{background:var(--ok)}
+.pip.now{background:var(--star)}
+
+.result{display:grid;justify-items:center;gap:8px;text-align:center}
+.big-stars{display:flex;gap:10px}
+.big-stars svg{width:clamp(46px,14vw,64px)}
+.pop-in{animation:starPop .5s cubic-bezier(.2,1.6,.5,1) backwards}
+@keyframes starPop{from{transform:scale(0) rotate(-40deg);opacity:0}to{transform:none;opacity:1}}
+.score{background:#fff;border:3px solid var(--line);border-radius:16px;padding:8px 16px;box-shadow:0 4px 0 var(--line);font-weight:800}
+.score b{display:block;font-family:"Fredoka",sans-serif;font-size:1.5rem;line-height:1.1}
+.score-box{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+
+.fx{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+.conf{position:absolute;width:11px;height:15px;border-radius:3px;animation:fall var(--d) linear forwards}
+@keyframes fall{to{transform:translate(var(--x),108vh) rotate(var(--r))}}
+
+.msvg .lid{transform-box:fill-box;transform-origin:top;animation:blink 5s infinite}
+@keyframes blink{0%,94%,100%{transform:scaleY(0)}96%,98%{transform:scaleY(1)}}
+.msvg.happy{animation:jump .5s cubic-bezier(.2,1.4,.5,1)}
+@keyframes jump{40%{transform:translateY(-14px) scale(1.04)}}
+.msvg.sad{animation:wob .5s}
+@keyframes wob{25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
+:focus-visible{outline:4px solid var(--ink);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><span class="brand-dot"></span>La Fábrica de Restas</div>
+    <span class="spacer"></span>
+    <span class="pill"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" fill="#FFC800" stroke="#2C1F45" stroke-width="1.8" stroke-linejoin="round"/></svg><span id="starCount">0</span>/9</span>
+    <button class="icon-btn" id="btnSound" aria-label="Sonidos"></button>
+    <button class="icon-btn" id="btnVoice" aria-label="Voz"></button>
+  </header>
+
+  <!-- INICIO -->
+  <section class="screen is-active" id="s-home">
+    <h1 class="headline">Restar llevando, paso a paso.</h1>
+    <p class="sub" id="homeSub">Las 15 restas de tu hoja, una columna a la vez.</p>
+    <div class="coach" style="margin-bottom:14px">
+      <span id="homeArt"></span>
+      <span class="bubble">Soy <b>Presti</b>. Cuando el número de arriba es más pequeño, le pedimos <b>10 prestado</b> al vecino de la izquierda. Te enseño.</span>
+    </div>
+    <div class="missions" id="missions"></div>
+    <button class="btn btn-ghost free" id="btnFree">Modo libre: restas nuevas sin parar</button>
+    <div class="btn-row"><button class="btn" id="btnDemo">Ver cómo se hace</button></div>
+  </section>
+
+  <!-- RESOLVER -->
+  <section class="screen" id="s-solve">
+    <div class="topbar" style="margin-bottom:10px">
+      <button class="back" data-go="home" style="margin:0">← Salir</button>
+      <div class="pips" id="pips"></div>
+      <span class="pill"><b id="points">0</b>&nbsp;pts</span>
+    </div>
+    <div class="board">
+      <div class="heads"><span class="head h-c">CENTENAS</span><span class="head h-d">DECENAS</span><span class="head h-u">UNIDADES</span></div>
+      <div class="cols" id="rowTop"></div>
+      <div class="cols rowb" id="rowBot"><span class="minus">−</span></div>
+      <div class="rule"></div>
+      <div class="cols" id="rowRes"></div>
+      <div class="bank" id="bank"></div>
+      <div class="tot" id="tot"></div>
+    </div>
+    <div class="coach"><span id="coachArt"></span><span class="bubble" id="bubble" aria-live="polite"></span></div>
+    <div id="controls"></div>
+  </section>
+
+  <!-- RESULTADO -->
+  <section class="screen" id="s-result">
+    <div class="result">
+      <span id="resArt"></span>
+      <h2 class="headline" id="resTitle"></h2>
+      <div class="big-stars" id="resStars"></div>
+      <div class="score-box">
+        <span class="score"><b id="rSolved">0</b>restas resueltas</span>
+        <span class="score"><b id="rClean">0</b>sin fallos</span>
+        <span class="score"><b id="rPts">0</b>puntos</span>
+      </div>
+      <p class="sub" id="resTip"></p>
+      <div class="btn-row">
+        <button class="btn" id="btnRetry">Repetir la fila</button>
+        <button class="btn btn-ghost" data-go="home">Volver al inicio</button>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="fx" id="fx"></div>
+
+<script>
+/* ====== EJERCICIOS DE LA HOJA ====== */
+const MISSIONS=[
+  {t:"Fila 1", c:"#0085FF", p:[[968,276],[235,165],[158,59],[487,388],[689,299]]},
+  {t:"Fila 2", c:"#FF1E8E", p:[[682,284],[758,468],[638,566],[669,389],[318,29]]},
+  {t:"Fila 3", c:"#28DB3C", p:[[259,175],[125,8],[459,168],[480,150],[509,109]]}
+];
+const S={sound:true,voice:true,stars:[0,0,0],mission:null,guided:false,free:false};
+
+/* ====== SONIDO ====== */
+let actx=null;
+function ac(){try{if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")actx.resume();return actx;}catch(e){return null}}
+function tone(f,t0,dur,type="sine",vol=.18){
+  const a=ac(); if(!a||!S.sound)return;
+  const o=a.createOscillator(),g=a.createGain();
+  o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(0,a.currentTime+t0);
+  g.gain.linearRampToValueAtTime(vol,a.currentTime+t0+.015);
+  g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+t0+dur);
+  o.connect(g);g.connect(a.destination);o.start(a.currentTime+t0);o.stop(a.currentTime+t0+dur+.05);
+}
+const sfx={
+  tap(){tone(560,0,.09,"triangle",.12)},
+  right(){[659,880,1175].forEach((f,i)=>tone(f,i*.07,.22,"triangle",.16))},
+  wrong(){tone(200,0,.18,"sawtooth",.1);tone(150,.11,.24,"sawtooth",.1)},
+  borrow(){[392,523,659].forEach((f,i)=>tone(f,i*.06,.18,"square",.1))},
+  cube(i){tone(700+i*45,0,.07,"triangle",.07)},
+  star(){[1046,1318,1568,2093].forEach((f,i)=>tone(f,i*.08,.3,"sine",.13))},
+  win(){[523,659,784,1046,1318].forEach((f,i)=>tone(f,i*.11,.4,"triangle",.15))}
+};
+let esVoice=null;
+function pickVoice(){try{const v=speechSynthesis.getVoices();esVoice=v.find(x=>/es[-_](MX|US|419)/i.test(x.lang))||v.find(x=>/^es/i.test(x.lang))||null}catch(e){}}
+if("speechSynthesis" in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function say(t){
+  if(!S.voice||!("speechSynthesis" in window))return;
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="es-MX";if(esVoice)u.voice=esVoice;u.rate=.97;u.pitch=1.08;speechSynthesis.speak(u)}catch(e){}
+}
+function stopSay(){try{speechSynthesis.cancel()}catch(e){}}
+
+/* ====== PRESTI (SVG) ====== */
+function presti(cls,color){
+  const c=color||"#7B2FF7";
+  return `<svg class="msvg ${cls||""}" viewBox="-6 -6 212 212" role="img" aria-label="Presti">
+  <g stroke="#2C1F45" stroke-width="6" stroke-linecap="round"><path d="M76 34L64 12"/><path d="M124 34L136 12"/></g>
+  <circle cx="62" cy="10" r="9" fill="#FFC800" stroke="#2C1F45" stroke-width="5"/>
+  <circle cx="138" cy="10" r="9" fill="#FFC800" stroke="#2C1F45" stroke-width="5"/>
+  <ellipse cx="72" cy="176" rx="20" ry="12" fill="#4A128C" stroke="#2C1F45" stroke-width="5"/>
+  <ellipse cx="128" cy="176" rx="20" ry="12" fill="#4A128C" stroke="#2C1F45" stroke-width="5"/>
+  <path d="M100 22C144 22 168 56 168 98C168 142 140 172 100 172C60 172 32 142 32 98C32 56 56 22 100 22Z" fill="${c}" stroke="#2C1F45" stroke-width="6"/>
+  <ellipse cx="100" cy="140" rx="42" ry="30" fill="#fff" opacity=".28"/>
+  <g><circle cx="76" cy="88" r="19" fill="#fff" stroke="#2C1F45" stroke-width="5"/><circle cx="77" cy="90" r="9" fill="#2C1F45"/><rect class="lid" x="55" y="66" width="42" height="24" rx="6" fill="${c}"/></g>
+  <g><circle cx="124" cy="88" r="19" fill="#fff" stroke="#2C1F45" stroke-width="5"/><circle cx="125" cy="90" r="9" fill="#2C1F45"/><rect class="lid" x="103" y="66" width="42" height="24" rx="6" fill="${c}"/></g>
+  <path class="mouth" d="M76 128Q100 148 124 128" fill="none" stroke="#2C1F45" stroke-width="6" stroke-linecap="round"/></svg>`;
+}
+function mood(sel,m){
+  const el=document.querySelector(sel+" .msvg");if(!el)return;
+  el.classList.remove("happy","sad");
+  const mo=el.querySelector(".mouth");
+  if(m==="happy"){el.classList.add("happy");mo.setAttribute("d","M72 122C84 156 116 156 128 122C112 132 88 132 72 122Z");mo.setAttribute("fill","#2C1F45")}
+  else if(m==="sad"){el.classList.add("sad");mo.setAttribute("d","M78 142Q100 122 122 142");mo.setAttribute("fill","none")}
+  else{mo.setAttribute("d","M76 128Q100 148 124 128");mo.setAttribute("fill","none")}
+  void el.offsetWidth;
+}
+
+/* ====== UTILES ====== */
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const NOM=["centenas","decenas","unidades"];
+function starSVG(on){return `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" fill="${on?"#FFC800":"#fff"}" stroke="#2C1F45" stroke-width="1.8" stroke-linejoin="round" opacity="${on?1:.4}"/></svg>`}
+function digits(n){return [Math.floor(n/100)%10,Math.floor(n/10)%10,n%10]}
+function confetti(n,cols){
+  const fx=$("#fx");
+  for(let i=0;i<n;i++){
+    const d=document.createElement("div");d.className="conf";
+    d.style.left=Math.random()*100+"vw";d.style.top=(-10-Math.random()*20)+"vh";
+    d.style.background=cols[i%cols.length];
+    d.style.setProperty("--x",(Math.random()*160-80)+"px");
+    d.style.setProperty("--r",(Math.random()*720-360)+"deg");
+    d.style.setProperty("--d",(1.5+Math.random()*1.4)+"s");
+    fx.appendChild(d);setTimeout(()=>d.remove(),3200);
+  }
+}
+function go(n){stopSay();$$(".screen").forEach(s=>s.classList.remove("is-active"));$("#s-"+n).classList.add("is-active");window.scrollTo(0,0)}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-go]");if(b){sfx.tap();go(b.dataset.go)}});
+
+/* ====== ESTADO DE LA RESTA ====== */
+let G=null;   // partida (misión)
+let P=null;   // problema actual
+
+function newProblem(a,b){
+  P={a,b,top:digits(a),bot:digits(b),work:digits(a),res:[null,null,null],
+     lend:[false,false,false],recv:[false,false,false],col:2,phase:"decide",err:0,clean:true};
+}
+function randomProblem(){
+  let a,b;
+  do{ a=120+Math.floor(Math.random()*880); b=20+Math.floor(Math.random()*(a-15)); }
+  while(b>=a || (digits(a)[2]>=digits(b)[2] && digits(a)[1]>=digits(b)[1]));
+  return [a,b];
+}
+
+/* ====== PINTAR ====== */
+function paint(){
+  const top=$("#rowTop"),bot=$("#rowBot"),res=$("#rowRes");
+  top.innerHTML="";res.innerHTML="";
+  bot.querySelectorAll(".cell").forEach(x=>x.remove());
+  for(let i=0;i<3;i++){
+    const c=document.createElement("div");
+    c.className="cell"+(P.col===i?" act":"");
+    let inner="";
+    if(P.lend[i]) inner+=`<span class="lend-mark">${P.work[i]>=10?P.work[i]-10:P.work[i]}</span>`;
+    if(P.recv[i]) inner+=`<span class="recv-mark">1</span>`;
+    inner+=`<span class="${P.lend[i]?"struck":""}">${P.top[i]}</span>`;
+    c.innerHTML=inner;
+    top.appendChild(c);
+
+    const d=document.createElement("div");
+    d.className="cell";d.textContent=P.bot[i];
+    bot.appendChild(d);
+
+    const r=document.createElement("div");
+    r.className="cell";
+    r.innerHTML=`<span class="slot${P.res[i]!==null?" filled":""}">${P.res[i]!==null?P.res[i]:""}</span>`;
+    res.appendChild(r);
+  }
+}
+function bubble(html,voice){$("#bubble").innerHTML=html;if(voice)say(voice)}
+function controls(html){$("#controls").innerHTML=html}
+function bank(cubes){
+  const b=$("#bank");b.innerHTML="";
+  for(let i=0;i<cubes;i++){
+    const c=document.createElement("span");c.className="cube";c.style.animationDelay=(i*.05)+"s";
+    b.appendChild(c);setTimeout(()=>sfx.cube(i),i*50);
+  }
+}
+
+/* ====== FLUJO ====== */
+function startMission(idx,free){
+  S.mission=idx;S.free=!!free;
+  const list = free ? Array.from({length:5},randomProblem) : MISSIONS[idx].p.slice();
+  G={list,i:0,pts:0,clean:0,errs:0};
+  $("#coachArt").innerHTML=presti();
+  go("solve");loadProblem();
+}
+function loadProblem(){
+  const [a,b]=G.list[G.i];
+  newProblem(a,b);
+  $("#tot").textContent="";$("#bank").innerHTML="";
+  renderPips();paint();
+  mood("#coachArt","idle");
+  askDecide();
+}
+function renderPips(){
+  const p=$("#pips");p.innerHTML="";
+  for(let i=0;i<G.list.length;i++){
+    const d=document.createElement("span");
+    d.className="pip"+(i<G.i?" done":i===G.i?" now":"");
+    p.appendChild(d);
+  }
+}
+function askDecide(){
+  const i=P.col,t=P.work[i],b=P.bot[i];
+  P.phase="decide";
+  paint();
+  bubble(`Columna de las <b>${NOM[i]}</b>: <b>${t} − ${b}</b>. ¿Te alcanza para restar?`,
+         `Columna de las ${NOM[i]}. ${t} menos ${b}. ¿Te alcanza?`);
+  const need=t<b;
+  controls(`<div class="choices">
+    <button class="choice ${S.guided&&!need?"pulse":""}" data-dec="si">Sí, puedo restar</button>
+    <button class="choice ${S.guided&&need?"pulse":""}" data-dec="no">No, pido 10 prestado</button>
+  </div>`);
+  $$("[data-dec]").forEach(btn=>btn.addEventListener("click",()=>decide(btn.dataset.dec==="no")));
+}
+function decide(wantsBorrow){
+  const i=P.col,t=P.work[i],b=P.bot[i],need=t<b;
+  if(wantsBorrow===need){
+    sfx.tap();
+    if(need) doBorrow(); else askDigit();
+  }else{
+    sfx.wrong();P.err++;P.clean=false;G.errs++;mood("#coachArt","sad");
+    if(need) bubble(`Fíjate: <b>${t}</b> es menor que <b>${b}</b>, no alcanza. Hay que pedir prestado.`,`${t} es menor que ${b}. No alcanza.`);
+    else bubble(`Aquí no hace falta: <b>${t}</b> ya es mayor o igual que <b>${b}</b>.`,`No hace falta. ${t} ya alcanza.`);
+  }
+}
+function doBorrow(){
+  const i=P.col;
+  let j=i-1;
+  while(j>=0 && P.work[j]===0) j--;
+  P.work[j]-=1;P.lend[j]=true;
+  for(let k=j+1;k<i;k++){P.work[k]=9;P.lend[k]=true;P.recv[k]=true}
+  P.work[i]+=10;P.recv[i]=true;
+  sfx.borrow();paint();bank(10);
+  bubble(`Las <b>${NOM[j]}</b> prestan una: pasa a <b>${P.work[j]}</b> y aquí tienes <b>${P.work[i]}</b>. Ahora sí: <b>${P.work[i]} − ${P.bot[i]}</b>.`,
+         `Pido prestado. Ahora tengo ${P.work[i]} menos ${P.bot[i]}.`);
+  setTimeout(askDigit,900);
+}
+function askDigit(){
+  const i=P.col,t=P.work[i],b=P.bot[i],r=t-b;
+  P.phase="input";
+  if(P.recv[i]) bubble(`Ahora resta: <b>${t} − ${b}</b>. Toca el resultado.`,`${t} menos ${b}`);
+  else bubble(`Resta: <b>${t} − ${b}</b>. Toca el resultado.`,`${t} menos ${b}`);
+  let html='<div class="pad">';
+  for(let k=0;k<10;k++) html+=`<button class="key ${S.guided&&k===r?"pulse":""}" data-k="${k}">${k}</button>`;
+  html+="</div>";
+  controls(html);
+  $$("[data-k]").forEach(btn=>btn.addEventListener("click",()=>typeDigit(+btn.dataset.k,btn)));
+}
+function typeDigit(v,btn){
+  const i=P.col,t=P.work[i],b=P.bot[i],r=t-b;
+  if(v===r){
+    btn.classList.add("ok");sfx.right();mood("#coachArt","happy");
+    P.res[i]=r;paint();
+    G.pts+=P.err===0?15:8;
+    $("#points").textContent=G.pts;
+    $("#bank").innerHTML="";
+    if(i===0) setTimeout(finishProblem,650);
+    else{P.col=i-1;setTimeout(askDecide,650)}
+  }else{
+    btn.classList.add("no");setTimeout(()=>btn.classList.remove("no"),320);
+    sfx.wrong();P.err++;P.clean=false;G.errs++;mood("#coachArt","sad");
+    if(P.err<3) bubble(`No es esa. Cuenta desde <b>${b}</b> hasta <b>${t}</b> con los dedos.`,"Casi. Inténtalo otra vez.");
+    else bubble(`La respuesta es <b>${r}</b>, porque ${b} + ${r} = ${t}. Tócala.`,`Es el ${r}`);
+  }
+}
+function finishProblem(){
+  const val=P.a-P.b;
+  $("#tot").innerHTML=`${P.a} − ${P.b} = <b style="color:var(--theme-dark)">${val}</b> &nbsp;·&nbsp; comprueba: ${val} + ${P.b} = ${P.a} ✔`;
+  mood("#coachArt","happy");
+  if(P.clean){G.clean++;G.pts+=20;$("#points").textContent=G.pts}
+  sfx.win();confetti(P.clean?45:22,["#7B2FF7","#FFC800","#28DB3C","#FF1E8E","#fff"]);
+  say(P.clean?"¡Perfecto, sin fallos!":"¡Resuelta!");
+  controls(`<div class="btn-row"><button class="btn" id="btnNext">${G.i+1<G.list.length?"Siguiente resta →":"Ver resultado"}</button></div>`);
+  $("#btnNext").addEventListener("click",()=>{
+    sfx.tap();G.i++;
+    if(G.i<G.list.length){renderPips();loadProblem()}else endMission();
+  });
+}
+function endMission(){
+  const stars = G.errs<=1?3 : G.errs<=4?2 : 1;
+  if(!S.free && stars>S.stars[S.mission]){S.stars[S.mission]=stars}
+  $("#resArt").innerHTML=presti("happy");
+  $("#resTitle").textContent = stars===3?"¡Sin un solo fallo!":stars===2?"¡Muy bien!":"¡Terminaste!";
+  $("#rSolved").textContent=G.list.length;
+  $("#rClean").textContent=G.clean;
+  $("#rPts").textContent=G.pts;
+  $("#resTip").textContent = stars===3?"Ya dominas las llevadas. Prueba el modo libre."
+    : stars===2?"Casi perfecto. Repite la fila para las 3 estrellas."
+    : "Repasa con 'Ver cómo se hace' y vuelve a intentarlo.";
+  const box=$("#resStars");box.innerHTML="";
+  [1,2,3].forEach(i=>{
+    const s=document.createElement("span");s.innerHTML=starSVG(stars>=i);
+    if(stars>=i){s.firstChild.classList.add("pop-in");s.firstChild.style.animationDelay=(i*.22)+"s";setTimeout(()=>sfx.star(),i*220)}
+    box.appendChild(s);
+  });
+  setTimeout(()=>{sfx.win();confetti(70,["#7B2FF7","#FFC800","#28DB3C","#FF1E8E","#0085FF"])},300);
+  renderHome();go("result");
+}
+
+/* ====== INICIO ====== */
+function renderHome(){
+  const m=$("#missions");m.innerHTML="";
+  MISSIONS.forEach((mi,idx)=>{
+    const b=document.createElement("button");
+    b.className="mcard";b.style.setProperty("--c",mi.c);
+    b.innerHTML=`<span class="mcard-t">${mi.t}</span>
+      <span class="mcard-l">${mi.p.map(p=>p[0]+" − "+p[1]).join("<br>")}</span>
+      <span class="stars">${[1,2,3].map(i=>starSVG(S.stars[idx]>=i)).join("")}</span>`;
+    b.addEventListener("click",()=>{sfx.tap();S.guided=false;startMission(idx)});
+    m.appendChild(b);
+  });
+  const tot=S.stars.reduce((a,b)=>a+b,0);
+  $("#starCount").textContent=tot;
+  $("#homeSub").textContent = tot===0?"Las 15 restas de tu hoja, una columna a la vez."
+    : tot<9?`Llevas ${tot} de 9 estrellas.`:"¡Las 9 estrellas! Eres experto en llevadas.";
+  $("#homeArt").innerHTML=presti();
+}
+$("#btnFree").addEventListener("click",()=>{sfx.tap();S.guided=false;startMission(0,true)});
+$("#btnDemo").addEventListener("click",()=>{
+  sfx.tap();S.guided=true;S.free=true;S.mission=0;
+  G={list:[[682,284]],i:0,pts:0,clean:0,errs:0};
+  $("#coachArt").innerHTML=presti();
+  go("solve");loadProblem();
+  setTimeout(()=>bubble("Sigue el botón que parpadea. Empezamos por las <b>unidades</b>, siempre por la derecha.","Sigue el botón que parpadea. Empezamos por las unidades."),400);
+});
+$("#btnRetry").addEventListener("click",()=>{sfx.tap();S.guided=false;startMission(S.mission,S.free)});
+
+const I_ON=`<svg viewBox="0 0 24 24" fill="none" stroke="#2C1F45" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="#FFC800"/><path d="M17 8.5a5 5 0 010 7"/></svg>`;
+const I_OFF=`<svg viewBox="0 0 24 24" fill="none" stroke="#2C1F45" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="#fff"/><path d="M17 9l4 6M21 9l-4 6"/></svg>`;
+const V_ON=`<svg viewBox="0 0 24 24" fill="none" stroke="#2C1F45" stroke-width="2.4" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3" fill="#7B2FF7"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg>`;
+const V_OFF=`<svg viewBox="0 0 24 24" fill="none" stroke="#2C1F45" stroke-width="2.4" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3" fill="#fff"/><path d="M5 11a7 7 0 0014 0M12 18v3M4 3l16 18"/></svg>`;
+function paintToggles(){
+  $("#btnSound").innerHTML=S.sound?I_ON:I_OFF;$("#btnSound").classList.toggle("is-off",!S.sound);
+  $("#btnVoice").innerHTML=S.voice?V_ON:V_OFF;$("#btnVoice").classList.toggle("is-off",!S.voice);
+}
+$("#btnSound").addEventListener("click",()=>{S.sound=!S.sound;paintToggles();if(S.sound)sfx.tap()});
+$("#btnVoice").addEventListener("click",()=>{S.voice=!S.voice;paintToggles();if(!S.voice)stopSay()});
+
+paintToggles();renderHome();
+document.addEventListener("click",()=>ac(),{once:true});
+</script>
+</body>
+</html>
