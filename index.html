@@ -9,9 +9,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#FFF3E2;
-  --paper-2:#FFE9CE;
+  --paper:#FFF0CE;
+  --paper-2:#FFE0A8;
   --ink:#2C1F45;
+  --on-theme:#fff;
   --ink-soft:#6B5C86;
   --line:#2C1F45;
   --ok:#2FB170;
@@ -34,7 +35,7 @@ body{
 /* fondo con manchas del color del monstruo activo */
 .bg{position:fixed;inset:0;z-index:0;pointer-events:none;transition:background .5s ease}
 .bg::before,.bg::after{
-  content:"";position:absolute;border-radius:50%;filter:blur(10px);opacity:.28;
+  content:"";position:absolute;border-radius:50%;filter:blur(10px);opacity:.45;
   background:var(--theme);transition:background .5s ease
 }
 .bg::before{width:70vw;height:70vw;left:-25vw;top:-25vw}
@@ -76,7 +77,7 @@ body{
   padding:10px 8px 12px;cursor:pointer;text-align:center;box-shadow:var(--shadow);
   transition:transform .12s cubic-bezier(.2,1.4,.5,1),box-shadow .12s;overflow:hidden
 }
-.card::before{content:"";position:absolute;inset:auto -20% -46% -20%;height:70%;border-radius:50%;background:var(--c);opacity:.22}
+.card::before{content:"";position:absolute;inset:auto -20% -46% -20%;height:70%;border-radius:50%;background:var(--c);opacity:.38}
 .card:hover{transform:translateY(-3px);box-shadow:0 8px 0 var(--line)}
 .card:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
 .card-num{
@@ -114,7 +115,7 @@ body{
   width:0;height:0;border:9px solid transparent;border-top-color:var(--line)}
 
 .btn{
-  font:inherit;font-family:"Fredoka",sans-serif;font-weight:600;font-size:1.15rem;color:#fff;background:var(--theme);
+  font:inherit;font-family:"Fredoka",sans-serif;font-weight:600;font-size:1.15rem;color:var(--on-theme);background:var(--theme);
   border:3.5px solid var(--line);border-radius:18px;padding:14px 22px;cursor:pointer;box-shadow:var(--shadow);
   transition:transform .08s,box-shadow .08s;display:inline-flex;align-items:center;gap:8px;justify-content:center
 }
@@ -147,7 +148,7 @@ body{
   cursor:pointer;box-shadow:0 4px 0 var(--line);width:100%;color:inherit;text-align:left
 }
 .row:active{transform:translateY(4px);box-shadow:0 0 0 var(--line)}
-.row.is-on{background:var(--theme);color:#fff}
+.row.is-on{background:var(--theme);color:var(--on-theme)}
 .row-res{background:var(--paper-2);border:3px solid var(--line);border-radius:10px;padding:1px 10px;min-width:52px;text-align:center;color:var(--ink)}
 .row.is-on .row-res{background:#fff}
 
@@ -169,7 +170,7 @@ body{
   font-family:"Fredoka",sans-serif;font-weight:700;font-size:clamp(2.6rem,13vw,4.4rem);line-height:1;letter-spacing:-.02em;
   background:#fff;border:4px solid var(--line);border-radius:24px;padding:14px 26px;box-shadow:var(--shadow-lg);text-align:center
 }
-.question .x{color:var(--theme)}
+.question .x{color:var(--theme-dark)}
 .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:min(440px,100%)}
 .opt{
   font-family:"Fredoka",sans-serif;font-weight:700;font-size:clamp(1.5rem,7vw,2rem);background:#fff;color:var(--ink);
@@ -333,16 +334,16 @@ body{
 <script>
 /* ============ DATOS ============ */
 const MONSTERS = {
-  2:{name:"Chispa", c:"#17C3B2", body:0, eyes:2, top:"antenas", pat:"lunares", line:"Sumo de dos en dos sin despeinarme."},
-  3:{name:"Rulo",   c:"#FF8C42", body:1, eyes:1, top:"copete",  pat:"rayas",   line:"Cuento de tres en tres saltando."},
-  4:{name:"Pompo",  c:"#F45B9B", body:2, eyes:2, top:"orejas",  pat:"lunares", line:"Si sabes el doble del doble, me tienes."},
-  5:{name:"Bimba",  c:"#8367E0", body:3, eyes:2, top:"cuernos", pat:"none",    line:"Termino en 0 o en 5, siempre."},
-  6:{name:"Croqui", c:"#56C271", body:0, eyes:3, top:"cuernos", pat:"rayas",   line:"Soy el 3 dos veces seguidas."},
-  7:{name:"Lucho",  c:"#3D9BE9", body:1, eyes:2, top:"antenas", pat:"none",    line:"El más tramposo. Ven a domarme."},
-  8:{name:"Ñoño",   c:"#EF5350", body:2, eyes:2, top:"copete",  pat:"lunares", line:"Doble, doble y doble otra vez."},
-  9:{name:"Tuti",   c:"#F2B705", body:3, eyes:1, top:"orejas",  pat:"rayas",   line:"Mis resultados suman siempre 9."}
+  2:{name:"Chispa", c:"#00E0C1", body:0, eyes:2, top:"antenas", pat:"lunares", line:"Sumo de dos en dos sin despeinarme."},
+  3:{name:"Rulo",   c:"#FF6A00", body:1, eyes:1, top:"copete",  pat:"rayas",   line:"Cuento de tres en tres saltando."},
+  4:{name:"Pompo",  c:"#FF1E8E", body:2, eyes:2, top:"orejas",  pat:"lunares", line:"Si sabes el doble del doble, me tienes."},
+  5:{name:"Bimba",  c:"#7B2FF7", body:3, eyes:2, top:"cuernos", pat:"none",    line:"Termino en 0 o en 5, siempre."},
+  6:{name:"Croqui", c:"#28DB3C", body:0, eyes:3, top:"cuernos", pat:"rayas",   line:"Soy el 3 dos veces seguidas."},
+  7:{name:"Lucho",  c:"#0085FF", body:1, eyes:2, top:"antenas", pat:"none",    line:"El más tramposo. Ven a domarme."},
+  8:{name:"Ñoño",   c:"#FF2222", body:2, eyes:2, top:"copete",  pat:"lunares", line:"Doble, doble y doble otra vez."},
+  9:{name:"Tuti",   c:"#FFC800", body:3, eyes:1, top:"orejas",  pat:"rayas",   line:"Mis resultados suman siempre 9."}
 };
-const MIX = {name:"Revoltijo", c:"#7A5CF0", body:2, eyes:3, top:"cuernos", pat:"lunares", line:"Mezclo todas las tablas."};
+const MIX = {name:"Revoltijo", c:"#9B00FF", body:2, eyes:3, top:"cuernos", pat:"lunares", line:"Mezclo todas las tablas."};
 const TABLES=[2,3,4,5,6,7,8,9];
 
 /* ============ ESTADO ============ */
@@ -484,9 +485,15 @@ const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()
 function starSVG(on){
   return `<svg viewBox="0 0 24 24" class="${on?"":"st-off"}" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" fill="${on?"#FFC02E":"#fff"}" stroke="#2C1F45" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
 }
+function onColor(hex){
+  const n=parseInt(hex.slice(1),16);
+  const L=(0.299*((n>>16)&255)+0.587*((n>>8)&255)+0.114*(n&255));
+  return L>168 ? "#2C1F45" : "#fff";
+}
 function setTheme(c){
   document.documentElement.style.setProperty("--theme",c);
-  document.documentElement.style.setProperty("--theme-dark",shade(c,-.3));
+  document.documentElement.style.setProperty("--theme-dark",shade(c,-.38));
+  document.documentElement.style.setProperty("--on-theme",onColor(c));
 }
 function confetti(n,colors){
   const fx=$("#fx");
@@ -525,7 +532,7 @@ function renderAlbum(){
     const m=MONSTERS[t];
     const c=document.createElement("button");
     c.className="card"; c.style.setProperty("--c",m.c);
-    c.innerHTML=`<span class="card-num">${t}</span>${monsterSVG(m)}<span class="card-name">${m.name}</span>
+    c.innerHTML=`<span class="card-num" style="color:${onColor(m.c)}">${t}</span>${monsterSVG(m)}<span class="card-name">${m.name}</span>
       <span class="stars">${[1,2,3].map(i=>starSVG((S.stars[t]||0)>=i)).join("")}</span>`;
     c.setAttribute("aria-label",`Tabla del ${t}, monstruo ${m.name}`);
     c.addEventListener("click",()=>{ sfx.tap(); openMonster(t); });
@@ -757,7 +764,7 @@ $("#btnVoice").addEventListener("click",()=>{ S.voice=!S.voice; paintToggles(); 
 (async function init(){
   await load();
   paintToggles();
-  setTheme("#8367E0");
+  setTheme("#7B2FF7");
   renderAlbum();
   document.addEventListener("click",()=>ac(),{once:true});
 })();
