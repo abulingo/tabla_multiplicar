@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -330,7 +331,24 @@ body{
 </div>
 
 <div class="fx" id="fx"></div>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const sb = createClient('https://rbipvhgyhrhmfzhcmoms.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJiaXB2aGd5aHJobWZ6aGNtb21zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMTA2MjQsImV4cCI6MjA4MTY4NjYyNH0.bUykMfOOmDJckkHydUiYlLjJ93clzvfU0KCh27ivHlw');
 
+// id anónimo por navegador (no identifica a nadie, solo evita contar recargas)
+let sesion;
+try {
+  sesion = localStorage.getItem('monstruos:sesion');
+  if (!sesion) { sesion = crypto.randomUUID(); localStorage.setItem('monstruos:sesion', sesion); }
+} catch (e) { sesion = crypto.randomUUID(); }
+
+const { data: total, error } = await sb.rpc('registrar_visita', {
+  p_sesion: sesion,
+  p_ruta: location.pathname,
+  p_referencia: document.referrer || null
+});
+if (!error) console.log('Visitas totales:', total);
+</script>
 <script>
 /* ============ DATOS ============ */
 const MONSTERS = {
