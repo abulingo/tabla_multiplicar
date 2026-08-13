@@ -331,23 +331,101 @@ body{
 </div>
 
 <div class="fx" id="fx"></div>
+<!-- Pegar justo antes de </body> en la página de las tablas -->
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-const sb = createClient('https://rbipvhgyhrhmfzhcmoms.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJiaXB2aGd5aHJobWZ6aGNtb21zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMTA2MjQsImV4cCI6MjA4MTY4NjYyNH0.bUykMfOOmDJckkHydUiYlLjJ93clzvfU0KCh27ivHlw');
 
-// id anónimo por navegador (no identifica a nadie, solo evita contar recargas)
-let sesion;
-try {
-  sesion = localStorage.getItem('monstruos:sesion');
-  if (!sesion) { sesion = crypto.randomUUID(); localStorage.setItem('monstruos:sesion', sesion); }
-} catch (e) { sesion = crypto.randomUUID(); }
+const sb = createClient(
+  'https://rbipvhgyhrhmfzhcmoms.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJiaXB2aGd5aHJobWZ6aGNtb21zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMTA2MjQsImV4cCI6MjA4MTY4NjYyNH0.bUykMfOOmDJckkHydUiYlLjJ93clzvfU0KCh27ivHlw'
+);
 
-const { data: total, error } = await sb.rpc('registrar_visita', {
-  p_sesion: sesion,
-  p_ruta: location.pathname,
-  p_referencia: document.referrer || null
-});
-if (!error) console.log('Visitas totales:', total);
+const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+const leer    = (k)     => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+
+// --- id anónimo del navegador ---
+let sesion = leer('monstruos:sesion');
+if (!sesion) { sesion = crypto.randomUUID(); guardar('monstruos:sesion', sesion); }
+
+// --- origen: se fija en la PRIMERA visita y no se sobrescribe ---
+const q = new URLSearchParams(location.search);
+let origen = q.get('de') || q.get('utm_source');
+if (origen) guardar('monstruos:origen', origen.slice(0, 40));
+else origen = leer('monstruos:origen');
+
+// --- tipo de dispositivo (respaldo; el SQL prefiere los client hints) ---
+function tipoDispositivo() {
+  const uad = navigator.userAgentData;
+  if (uad && typeof uad.mobile === 'boolean') {
+    if (!uad.mobile) return 'escritorio';
+    return Math.min(screen.width, screen.height) >= 600 ? 'tablet' : 'movil';
+  }
+  if (/iPad|Tablet|(Android(?!.*Mobile))/i.test(navigator.userAgent)) return 'tablet';
+  if (/Mobi|iPhone|iPod|Android/i.test(navigator.userAgent)) return 'movil';
+  return 'escritorio';
+}
+
+// --- modelo y versión del SO: solo Chromium, y es asíncrono ---
+async function altaEntropia() {
+  try {
+    const d = await navigator.userAgentData.getHighEntropyValues(['model', 'platformVersion']);
+    return { modelo: d.model || null, so_version: d.platformVersion || null };
+  } catch (e) { return {}; }
+}
+
+// --- tiempos de carga ---
+function tiempos() {
+  try {
+    const n = performance.getEntriesByType('navigation')[0];
+    if (!n) return {};
+    return {
+      carga_ms: Math.round(n.duration) || null,
+      ttfb_ms:  Math.round(n.responseStart) || null
+    };
+  } catch (e) { return {}; }
+}
+
+const mq = s => { try { return matchMedia(s).matches; } catch (e) { return null; } };
+
+async function registrar() {
+  const ahora = new Date();
+  const datos = {
+    ruta: location.pathname,
+    hash: location.hash || null,
+    origen,
+    referencia: document.referrer || null,   // el SQL prefiere la cabecera real
+    dispositivo: tipoDispositivo(),
+
+    pantalla: `${screen.width}x${screen.height}`,
+    ventana: `${innerWidth}x${innerHeight}`,
+    dpr: devicePixelRatio,
+    orientacion: (screen.orientation && screen.orientation.type) || null,
+
+    nucleos: navigator.hardwareConcurrency || null,
+    memoria_gb: navigator.deviceMemory || null,
+    tactil: navigator.maxTouchPoints > 0,
+    conexion: (navigator.connection && navigator.connection.effectiveType) || null,
+
+    zona_horaria: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    hora_local: ahora.getHours(),
+    idioma: navigator.language,
+    idiomas: (navigator.languages || []).join(','),
+
+    tema_oscuro: mq('(prefers-color-scheme: dark)'),
+    menos_animacion: mq('(prefers-reduced-motion: reduce)'),
+
+    ...(await altaEntropia()),
+    ...tiempos()
+  };
+
+  const { data, error } = await sb.rpc('registrar_visita', { p_sesion: sesion, p_datos: datos });
+  if (error) console.warn('visita no registrada:', error.message);
+  else console.log('Visitas totales:', data);
+}
+
+// Espera a que la carga termine para que carga_ms tenga un valor real
+if (document.readyState === 'complete') registrar();
+else addEventListener('load', () => setTimeout(registrar, 0));
 </script>
 <script>
 /* ============ DATOS ============ */
